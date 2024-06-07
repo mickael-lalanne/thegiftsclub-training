@@ -15,5 +15,6 @@ module.exports = {
       { allowConstantExport: true },
     ],
     '@stylistic/indent': ['error', 4],
+    '@stylistic/semi': 'error',
   },
 }

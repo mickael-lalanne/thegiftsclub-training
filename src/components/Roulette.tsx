@@ -1,34 +1,28 @@
 import { useEffect, useState } from 'react';
 import './Roulette.css';
 import { css } from '@emotion/css';
-
-type RouletteItem = {
-    id: number;
-    name: string;
-    probability: number;
-};
-
-const COLORS: string[] = ['#f59000', '#5e0cab'];
+import { RouletteConfig } from '../models/RouletteConfig';
+import { getRouletteConfig } from '../services/RouletteService';
 
 function Roulette() {
-    const [rouletteItems, setRouletteItems] = useState<RouletteItem[]>([]);
+    const [rouletteConfig, setRouletteConfig] = useState<RouletteConfig>({
+        items: [],
+        colors: [],
+    });
     const [rouletteTransform, setRouletteTransform] = useState<string>();
     const [currentAngle, setCurrentAngle] = useState<number>(0);
     const [result, setResult] = useState<string>('Tournez la roue !');
 
     useEffect(() => {
-        setRouletteItems([
-            { id: 1, name: 'Item 1', probability: 0.2 },
-            { id: 2, name: 'Item 2', probability: 0.2 },
-            { id: 3, name: 'Item 3', probability: 0.2 },
-            { id: 4, name: 'Item 4', probability: 0.2 },
-            { id: 5, name: 'Item 5', probability: 0.2 },
-            { id: 6, name: 'Item 6', probability: 0.2 },
-        ]);
+        async function fetchRouletteConfig() {
+            setRouletteConfig(await getRouletteConfig());
+        }
+
+        fetchRouletteConfig();
     }, []);
 
     const spin = (): void => {
-        const totalProbability = rouletteItems.reduce(
+        const totalProbability = rouletteConfig.items.reduce(
             (acc, item) => acc + item.probability,
             0
         );
@@ -36,18 +30,18 @@ function Roulette() {
         let sum = 0;
         let selectedItemIndex = 0;
 
-        for (let i = 0; i < rouletteItems.length; i++) {
-            sum += rouletteItems[i].probability;
+        for (let i = 0; i < rouletteConfig.items.length; i++) {
+            sum += rouletteConfig.items[i].probability;
             if (random <= sum) {
                 selectedItemIndex = i;
                 break;
             }
         }
 
-        setResult(`Result : ${rouletteItems[selectedItemIndex].name}`);
+        setResult(`Result : ${rouletteConfig.items[selectedItemIndex].name}`);
 
         const rotations = 3; // Number of full rotations before landing on the item
-        const sliceAngle = 360 / rouletteItems.length;
+        const sliceAngle = 360 / rouletteConfig.items.length;
         const degrees = rotations * 360 + selectedItemIndex * sliceAngle;
 
         setRouletteTransform(`rotate(-${currentAngle + degrees}deg)`);
@@ -58,17 +52,20 @@ function Roulette() {
     const RouletteItems = (): React.JSX.Element[] => {
         const items: React.JSX.Element[] = [];
 
-        rouletteItems.forEach((item, index) => {
+        rouletteConfig.items.forEach((item, index) => {
             items.push(
                 <li
-                    key={item.id}
-                    className={'roulette-item ' + css`
-                        &:after {
-                            border-top-color: ${COLORS[index % 2 ? 0 : 1]} !important;
-                        }
-                    `}
+                    key={index}
+                    className={
+                        'roulette-item ' +
+                        css`
+                            &:after {
+                                border-top-color: ${rouletteConfig.colors[index % 2 ? 0 : 1]} !important;
+                            }
+                        `
+                    }
                     style={{
-                        transform: `rotate(calc(360deg / ${rouletteItems.length} * ${index}))`,
+                        transform: `rotate(calc(360deg / ${rouletteConfig.items.length} * ${index}))`,
                     }}
                 >
                     {item.name}

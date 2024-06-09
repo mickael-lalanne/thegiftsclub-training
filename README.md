@@ -1,30 +1,60 @@
-# React + TypeScript + Vite
+# Result
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Demo](images/demo.gif)
 
-Currently, two official plugins are available:
+## Roulette config is saved in a DynamoDB table
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Config](images/db.png)
 
-## Expanding the ESLint configuration
+## Lambda which retrieves the configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
 ```
+import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+const client = new DynamoDBClient({});
+
+export const handler = async (event) => {
+    const { userId } = event.queryStringParameters;
+
+    const command = new QueryCommand({
+        TableName: 'tgc-roulette',
+        IndexName: 'userId-index',
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: {
+            ':userId': { S: userId }
+        },
+        Limit: 1 // Ensure only one item is returned
+    });
+
+    try {
+        const response = await client.send(command);
+
+        if (response.Items.length > 0) {
+            return {
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: unmarshall(response.Items[0]),
+            };
+        } else {
+            return {
+                statusCode: 404,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({ message: 'Item not found' }),
+            };
+        }
+    } catch (error) {
+        return {
+            statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify(userId),
+        };
+    }
+};
+```

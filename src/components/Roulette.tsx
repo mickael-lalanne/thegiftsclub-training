@@ -48,7 +48,7 @@ function Roulette() {
 
         setRouletteTransform(`rotate(-${currentAngle + degrees}deg)`);
 
-        setCurrentAngle(currentAngle + degrees);
+        setCurrentAngle(currentAngle + degrees - selectedItemIndex * sliceAngle);
     };
 
     const RouletteItems = (): React.JSX.Element[] => {

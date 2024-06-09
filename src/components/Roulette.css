@@ -1,16 +1,13 @@
-.compsoul-body {
+.roulette-container {
     align-items: center;
     display: flex;
     flex-direction: column;
 }
 .roulette {
-    --size: 500px;
     outline: 3px solid #fff;
     border-radius: 100%;
     box-shadow: 3px 3px0 -0.8em #00000022;
-    height: var(--size);
     position: relative;
-    width: var(--size);
     z-index: 1;
     margin: 50px 0;
 }
@@ -43,9 +40,11 @@
     top: -15px;
     left: calc(50% - 25px);
 }
+.roulette-title {
+    font-size: 32px;
+}
 
 .roulette .roulette-list {
-    /* animation: roulette 0.8s linear infinite paused; */
     border-radius: 100%;
     font-family: Helvetica, Arial, sans-serif;
     height: 100%;
@@ -61,18 +60,14 @@
 
 .roulette .roulette-item {
     align-items: center;
-    bottom: calc(var(--size) / 2);
     color: #ffffff;
     display: flex;
     font-size: 1em;
     font-weight: 600;
-    height: calc(var(--size) / 2.1);
-    left: calc(var(--size) / 4);
     position: absolute;
     text-indent: 2em;
     text-transform: uppercase;
     transform-origin: bottom center;
-    width: calc(var(--size) / 2);
     writing-mode: vertical-rl;
 }
 

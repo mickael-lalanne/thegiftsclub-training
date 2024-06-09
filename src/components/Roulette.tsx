@@ -13,7 +13,7 @@ function Roulette() {
     });
     const [rouletteTransform, setRouletteTransform] = useState<string>();
     const [currentAngle, setCurrentAngle] = useState<number>(0);
-    const [result, setResult] = useState<string>('Tournez la roue !');
+    const [result, setResult] = useState<string>('Spin the wheel !');
 
     useEffect(() => {
         async function fetchRouletteConfig() {
@@ -75,10 +75,10 @@ function Roulette() {
 
     return (
         <>
-            <div className="compsoul-body">
-                <div className="p-8">{result}</div>
+            <div className="roulette-container">
+                <div className="roulette-title">{result}</div>
 
-                <div className="roulette">
+                <div className={'roulette ' + rouletteStyle}>
                     <ul
                         className="roulette-list"
                         style={{ transform: rouletteTransform }}
@@ -95,6 +95,11 @@ function Roulette() {
 
 export default Roulette;
 
+const rouletteStyle = css`
+    width: ${ROULETTE_SIZE};
+    height: ${ROULETTE_SIZE};
+`;
+
 const getRouletteItemStyle = (
     config: RouletteConfig,
     index: number
@@ -110,6 +115,11 @@ const getRouletteItemStyle = (
         tangentFirst + tangentSecond + tangentThird + tangentFourth;
 
     return css`
+        bottom: calc(${ROULETTE_SIZE} / 2);
+        height: calc(${ROULETTE_SIZE} / 2.1);
+        left: calc(${ROULETTE_SIZE} / 4);
+        width: calc(${ROULETTE_SIZE} / 2);
+
         &:after {
             border-right: calc(${ROULETTE_SIZE} / 2 * ${tangent} + 1px) solid
                 transparent !important;

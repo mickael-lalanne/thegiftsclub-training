@@ -4,6 +4,8 @@ import { css } from '@emotion/css';
 import { RouletteConfig } from '../models/RouletteConfig';
 import { getRouletteConfig } from '../services/RouletteService';
 
+const ROULETTE_SIZE: string = '500px';
+
 function Roulette() {
     const [rouletteConfig, setRouletteConfig] = useState<RouletteConfig>({
         items: [],
@@ -58,11 +60,7 @@ function Roulette() {
                     key={index}
                     className={
                         'roulette-item ' +
-                        css`
-                            &:after {
-                                border-top-color: ${rouletteConfig.colors[index % 2 ? 0 : 1]} !important;
-                            }
-                        `
+                        getRouletteItemStyle(rouletteConfig, index)
                     }
                     style={{
                         transform: `rotate(calc(360deg / ${rouletteConfig.items.length} * ${index}))`,
@@ -96,3 +94,29 @@ function Roulette() {
 }
 
 export default Roulette;
+
+const getRouletteItemStyle = (
+    config: RouletteConfig,
+    index: number
+): string => {
+    const angle: number = 3.1416 / config.items.length;
+    const tangentFirst: number = angle;
+    const tangentSecond: number = (1 / 3) * angle * angle * angle;
+    const tangentThird: number =
+        (2 / 15) * angle * angle * angle * angle * angle;
+    const tangentFourth: number =
+        (17 / 315) * angle * angle * angle * angle * angle * angle * angle;
+    const tangent: number =
+        tangentFirst + tangentSecond + tangentThird + tangentFourth;
+
+    return css`
+        &:after {
+            border-right: calc(${ROULETTE_SIZE} / 2 * ${tangent} + 1px) solid
+                transparent !important;
+            border-top: calc(${ROULETTE_SIZE} / 2) solid transparent !important;
+            border-left: calc(${ROULETTE_SIZE} / 2 * ${tangent} + 1px) solid
+                transparent !important;
+            border-top-color: ${config.colors[index % 2 ? 0 : 1]} !important;
+        }
+    `;
+};
